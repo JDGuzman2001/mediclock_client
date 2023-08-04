@@ -1,6 +1,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.mediclock_v1">
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" /> <!-- Add this line -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" /> 
+     <queries>
+        <package android:name="com.google.android.deskclock" />
+     </queries>
    <application
         android:label="MediClock"
         android:name="${applicationName}"
@@ -37,6 +40,8 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
+                <category android:name="android.intent.category.HOME"/> 
+                <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
         <!-- Don't delete the meta-data below.
