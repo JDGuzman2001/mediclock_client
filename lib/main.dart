@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:external_app_launcher/external_app_launcher.dart';
+
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -61,6 +65,8 @@ class _TaskListScreenState extends State<TaskListScreen> {
           playSound: true,
         ));
   }
+  
+
 
   @override
   Widget build(BuildContext context) {
@@ -116,39 +122,60 @@ class _TaskListScreenState extends State<TaskListScreen> {
           },
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.blue,
-        onPressed: () async {
-          TimeOfDay? selectedTime = await showTimePicker(
-            context: context,
-            initialTime: TimeOfDay.now(),
-          );
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat, // Ajustar la posición de los botones
+      floatingActionButton: Padding(
+        padding: EdgeInsets.only(left: 10, right: 10),
+        child: Row( // Usar un Row para colocar ambos botones
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            FloatingActionButton(
+              backgroundColor: Colors.black, // Color del primer botón (izquierda)
+              onPressed: () async  {
+                //_launchClockApp;
+                await LaunchApp.openApp(
+                  androidPackageName: 'com.google.android.deskclock', 
+                  iosUrlScheme: 'clockapp://' 
+                );
+              },
+              child: Icon(Icons.access_alarm),
+            ),
+            SizedBox(width: 16), // Espacio entre los botones
+            FloatingActionButton(
+              backgroundColor: Colors.blue, // Color del segundo botón (derecha)
+              onPressed: () async {
+                TimeOfDay? selectedTime = await showTimePicker(
+                  context: context,
+                  initialTime: TimeOfDay.now(),
+                );
 
-          if (selectedTime != null) {
-            setState(() {
-              principalTasks.add(selectedTime);
-              tasksMap[selectedTime] = [];
-              taskStatusList.add([]);
-              _scheduleNotification(selectedTime); // Schedule the notification for the selected time
-            });
-            showDialog(
-              context: context, 
-              builder: (context) => AlertDialog(
-                title: Text('Hora agregada'),
-                content: Text('Recuerda poner una alarma a la hora seleccionada con la aplicación de alarma de tu teléfono'),
-                actions: [
-                  TextButton(
-                    child: Text('OK'),
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                  ),
-                ],
-              )
-              );
-          }
-        },
-        child: Icon(Icons.add),
+                if (selectedTime != null) {
+                  setState(() {
+                    principalTasks.add(selectedTime);
+                    tasksMap[selectedTime] = [];
+                    taskStatusList.add([]);
+                    _scheduleNotification(selectedTime); // Schedule the notification for the selected time
+                  });
+                  showDialog(
+                    context: context, 
+                    builder: (context) => AlertDialog(
+                      title: Text('Hora agregada'),
+                      content: Text('Recuerda poner una alarma a la hora seleccionada con la aplicación de alarma de tu teléfono'),
+                      actions: [
+                        TextButton(
+                          child: Text('OK'),
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                        ),
+                      ],
+                    )
+                    );
+                }
+              },
+              child: Icon(Icons.add),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -334,20 +361,6 @@ class _TaskListScreenState extends State<TaskListScreen> {
     return '$hourFormatted:$minuteFormatted $period';
   }
 
-
-
- /*  String _formatTime(TimeOfDay timeOfDay) {
-    int hour = timeOfDay.hour;
-    int minute = timeOfDay.minute;
-
-    // Formateamos las horas y minutos con dos dígitos (por ejemplo: "05" en lugar de "5")
-    String hourFormatted = hour.toString().padLeft(2, '0');
-    String minuteFormatted = minute.toString().padLeft(2, '0');
-
-    
-
-    return '$hourFormatted:$minuteFormatted';
-  } */
   String _formatTime24h(TimeOfDay timeOfDay) {
     int hour = timeOfDay.hour;
     int minute = timeOfDay.minute;
