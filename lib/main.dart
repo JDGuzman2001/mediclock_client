@@ -74,12 +74,10 @@ class _TaskListScreenState extends State<TaskListScreen> {
             SizedBox(width: 10.0,),
             Text('Horarios de tus medicamentos', style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),),
             SizedBox(width: 10.0,),
-            //Icon(Icons.medical_services),
+
           ],
         ),
-        //backgroundColor: Colors.green[700],
         backgroundColor: Colors.blue,
-        
       ),
       body: SafeArea(
         child: ListView.builder(
@@ -90,35 +88,26 @@ class _TaskListScreenState extends State<TaskListScreen> {
               padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 8),
               child: Container(
                 decoration: BoxDecoration(
-                  
                     border: Border.all(
                     color: Colors.grey,
-                  
                   ),
-                ),
-               
-                   
+                ),    
                   child: ExpansionTile(                
                     title: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                           Text(
-                            _formatTime(principalTasks[index]), 
+                            _formatTimeAMPM(principalTasks[index]), // Mostrar la hora en formato AM/PM
                             style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
                           ),
-                        
-
                           IconButton(
                             icon: Icon(Icons.delete),
                             onPressed: () {
                               _deletePrincipalTask(index);
                             },
                           ),
-                    
-                        
                       ],
                     ),
-                    //children: _buildTasksList(principalTasks[index]),
                     children: _buildTasksList(principalTasks[index], taskStatus, index),
                   ),
               
@@ -128,7 +117,6 @@ class _TaskListScreenState extends State<TaskListScreen> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        //backgroundColor: Colors.green[700],
         backgroundColor: Colors.blue,
         onPressed: () async {
           TimeOfDay? selectedTime = await showTimePicker(
@@ -304,7 +292,8 @@ class _TaskListScreenState extends State<TaskListScreen> {
     if (scheduledTime.isBefore(now)) {
       scheduledTime = scheduledTime.add(Duration(days: 1));
     }
-
+    String formattedampmTime = _formatTimeAMPM(selectedTime); // Obtener la hora en formato AM/PM
+    String formattedTime = _formatTime24h(selectedTime); // Obtener la hora en formato 24h
     var androidPlatformChannelSpecifics = AndroidNotificationDetails(
       'alarm_channel',
       'Alarm Channel',
@@ -321,16 +310,33 @@ class _TaskListScreenState extends State<TaskListScreen> {
     await flutterLocalNotificationsPlugin.schedule(
       0, // notification id
       'Recordatorio de medicamento(s)', // notification title
-      '$selectedTime', // notification body
+      '$formattedampmTime', // notification body en formato 24h
       scheduledTime,
       platformChannelSpecifics,
       androidAllowWhileIdle: true,
     );
-  } 
+  }
+
+   String _formatTimeAMPM(TimeOfDay timeOfDay) {
+    int hour = timeOfDay.hour;
+    int minute = timeOfDay.minute;
+    String period = (hour >= 12) ? 'PM' : 'AM';
+
+    if (hour > 12) {
+      hour -= 12;
+    } else if (hour == 0) {
+      hour = 12;
+    }
+
+    String hourFormatted = hour.toString().padLeft(2, '0');
+    String minuteFormatted = minute.toString().padLeft(2, '0');
+
+    return '$hourFormatted:$minuteFormatted $period';
+  }
 
 
 
-  String _formatTime(TimeOfDay timeOfDay) {
+ /*  String _formatTime(TimeOfDay timeOfDay) {
     int hour = timeOfDay.hour;
     int minute = timeOfDay.minute;
 
@@ -340,6 +346,13 @@ class _TaskListScreenState extends State<TaskListScreen> {
 
     
 
+    return '$hourFormatted:$minuteFormatted';
+  } */
+  String _formatTime24h(TimeOfDay timeOfDay) {
+    int hour = timeOfDay.hour;
+    int minute = timeOfDay.minute;
+    String hourFormatted = hour.toString().padLeft(2, '0');
+    String minuteFormatted = minute.toString().padLeft(2, '0');
     return '$hourFormatted:$minuteFormatted';
   }
 
