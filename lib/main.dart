@@ -165,6 +165,32 @@ class _TaskListScreenState extends State<TaskListScreen> {
     );
   }
 
+  void _showAllSelectedAlertDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Lista completada'),
+        content: Text('Recuerda volver a hacer la lista para cuando la vuelvas a necesitar ya que la notificación solo se muestra una vez por lista'),
+        actions: [
+          TextButton(
+            child: Text('OK'),
+            onPressed: () {
+              Navigator.pop(context);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+  
+  void _checkAllSelected(int index) {
+    List<bool?> taskStatus = taskStatusList[index]!;
+    bool allSelected = !taskStatus.contains(false); // Verificar si todos los checkboxes están seleccionados
+    if (allSelected) {
+      _showAllSelectedAlertDialog(); // Mostrar el AlertDialog si todos están seleccionados
+    }
+  }
+
   List<Widget> _buildTasksList(TimeOfDay principalTask, List<bool?> taskStatus, int index) {
     List<Widget> taskWidgets = [];
 
@@ -178,9 +204,7 @@ class _TaskListScreenState extends State<TaskListScreen> {
               decoration: BoxDecoration(
                 color: Colors.grey[200],
                 border: Border.all(
-                  
-                    color: Colors.black,
-                 
+                  color: Colors.black,
                 ),
               ),
               child: Row(
@@ -190,7 +214,8 @@ class _TaskListScreenState extends State<TaskListScreen> {
                     value: taskStatus[i],
                     onChanged: (value) {
                       setState(() {
-                        taskStatus[i] = value;
+                        taskStatus[i] = value; // Actualizar el estado específico
+                        _checkAllSelected(index); // Verificar si todos están seleccionados al cambiar un checkbox
                       });
                     },
                   ),
@@ -214,10 +239,8 @@ class _TaskListScreenState extends State<TaskListScreen> {
     }
 
     taskWidgets.add(
-     
       ElevatedButton(
         style: ButtonStyle(
-          //backgroundColor: MaterialStateProperty.all(Colors.green[700]),
           backgroundColor: MaterialStateProperty.all(Colors.blue),
         ),
         onPressed: () {
